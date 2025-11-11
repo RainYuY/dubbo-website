@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>可视化观测 on Apache Dubbo</title><link>https://dubbo.apache.org/zh-cn/overview/mannual/golang-sdk/tutorial/observability/</link><description>Recent content in 可视化观测 on Apache Dubbo</description><generator>Hugo</generator><language>zh-cn</language><atom:link href="https://dubbo.apache.org/zh-cn/overview/mannual/golang-sdk/tutorial/observability/index.xml" rel="self" type="application/rss+xml"/><item><title>配置和管理框架日志</title><link>https://dubbo.apache.org/zh-cn/overview/mannual/golang-sdk/tutorial/observability/logger/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://dubbo.apache.org/zh-cn/overview/mannual/golang-sdk/tutorial/observability/logger/</guid><description>&lt;p&gt;本示例演示如何配置 dubbo-go 框架日志组件，将框架运行态日志保存到指定的位置。可在此查看 &lt;a href="https://github.com/apache/dubbo-go-samples/tree/main/logger/level" target="_blank"&gt;完整示例源码地址&lt;/a&gt;。&lt;/p&gt;
+
+
+&lt;div class="alert alert-info" role="alert"&gt;
+&lt;h4 class="alert-heading"&gt;注意&lt;/h4&gt;
+
+ 这里配置的只是 dubbo-go 框架自身的日志组件行为，即框架内部使用的日志，不影响业务日志框架的使用！
+
+&lt;/div&gt;
+
+&lt;h2 id="1-日志配置"&gt;1. 日志配置&lt;/h2&gt;
+&lt;p&gt;如下所示，可以通过 &lt;code&gt;log.WithZap()&lt;/code&gt;、&lt;code&gt;log.WithLevel(&amp;quot;warn&amp;quot;)&lt;/code&gt; 设置 dubbo 框架日志行为：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-go" data-lang="go"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;ins, err &lt;span style="color:#719e07"&gt;:=&lt;/span&gt; dubbo.&lt;span style="color:#268bd2"&gt;NewInstance&lt;/span&gt;(
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;	dubbo.&lt;span style="color:#268bd2"&gt;WithLogger&lt;/span&gt;(
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;		log.&lt;span style="color:#268bd2"&gt;WithLevel&lt;/span&gt;(&lt;span style="color:#2aa198"&gt;&amp;#34;warn&amp;#34;&lt;/span&gt;),
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;		log.&lt;span style="color:#268bd2"&gt;WithZap&lt;/span&gt;(),
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;	),
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id="2-应用共享日志组件"&gt;2. 应用共享日志组件&lt;/h2&gt;
+&lt;p&gt;注意，这里配置的只是 dubbo-go 框架自身的日志组件行为（即框架内部使用的日志），不影响业务日志框架的使用！&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;通过以下方式，业务应用也可以选择复用这个日志组件：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-go" data-lang="go"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#719e07"&gt;import&lt;/span&gt; app_logger &lt;span style="color:#2aa198"&gt;&amp;#34;github.com/dubbogo/gost/log/logger&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;app_logger.&lt;span style="color:#268bd2"&gt;Info&lt;/span&gt;(&lt;span style="color:#2aa198"&gt;&amp;#34;hello&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;日志 Interface&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-go" data-lang="go"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#268bd2"&gt;type&lt;/span&gt; Logger &lt;span style="color:#268bd2"&gt;interface&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;	&lt;span style="color:#268bd2"&gt;Info&lt;/span&gt;(args &lt;span style="color:#719e07"&gt;...&lt;/span&gt;&lt;span style="color:#268bd2"&gt;interface&lt;/span&gt;{})
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;	&lt;span style="color:#268bd2"&gt;Warn&lt;/span&gt;(args &lt;span style="color:#719e07"&gt;...&lt;/span&gt;&lt;span style="color:#268bd2"&gt;interface&lt;/span&gt;{})
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;	&lt;span style="color:#268bd2"&gt;Error&lt;/span&gt;(args &lt;span style="color:#719e07"&gt;...&lt;/span&gt;&lt;span style="color:#268bd2"&gt;interface&lt;/span&gt;{})
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;	&lt;span style="color:#268bd2"&gt;Debug&lt;/span&gt;(args &lt;span style="color:#719e07"&gt;...&lt;/span&gt;&lt;span style="color:#268bd2"&gt;interface&lt;/span&gt;{})
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;	&lt;span style="color:#268bd2"&gt;Fatal&lt;/span&gt;(args &lt;span style="color:#719e07"&gt;...&lt;/span&gt;&lt;span style="color:#268bd2"&gt;interface&lt;/span&gt;{})
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;	&lt;span style="color:#268bd2"&gt;Infof&lt;/span&gt;(fmt &lt;span style="color:#dc322f"&gt;string&lt;/span&gt;, args &lt;span style="color:#719e07"&gt;...&lt;/span&gt;&lt;span style="color:#268bd2"&gt;interface&lt;/span&gt;{})
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;	&lt;span style="color:#268bd2"&gt;Warnf&lt;/span&gt;(fmt &lt;span style="color:#dc322f"&gt;string&lt;/span&gt;, args &lt;span style="color:#719e07"&gt;...&lt;/span&gt;&lt;span style="color:#268bd2"&gt;interface&lt;/span&gt;{})
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;	&lt;span style="color:#268bd2"&gt;Errorf&lt;/span&gt;(fmt &lt;span style="color:#dc322f"&gt;string&lt;/span&gt;, args &lt;span style="color:#719e07"&gt;...&lt;/span&gt;&lt;span style="color:#268bd2"&gt;interface&lt;/span&gt;{})
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;	&lt;span style="color:#268bd2"&gt;Debugf&lt;/span&gt;(fmt &lt;span style="color:#dc322f"&gt;string&lt;/span&gt;, args &lt;span style="color:#719e07"&gt;...&lt;/span&gt;&lt;span style="color:#268bd2"&gt;interface&lt;/span&gt;{})
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;	&lt;span style="color:#268bd2"&gt;Fatalf&lt;/span&gt;(fmt &lt;span style="color:#dc322f"&gt;string&lt;/span&gt;, args &lt;span style="color:#719e07"&gt;...&lt;/span&gt;&lt;span style="color:#268bd2"&gt;interface&lt;/span&gt;{})
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="alert alert-info" role="alert"&gt;
+&lt;h4 class="alert-heading"&gt;注意&lt;/h4&gt;
+
+ 日志API不可以在Init 阶段使用，否则可能会发生意料之外的问题。
+
+&lt;/div&gt;
+
+&lt;h2 id="2-完全自定义日志"&gt;2. 完全自定义日志&lt;/h2&gt;
+&lt;p&gt;当前 dubbo-go 框架支持 zap、logrus 两个日志框架，如果您想让 dubbo 框架内核使用其他日志框架打印日志，推荐以标准扩展形式增加支持，具体可参考核心库中内置的 &lt;a href="https://github.com/apache/dubbo-go/tree/main/logger"&gt;源码实现&lt;/a&gt;。&lt;/p&gt;</description></item><item><title>metrics监控</title><link>https://dubbo.apache.org/zh-cn/overview/mannual/golang-sdk/tutorial/observability/rpc_metrics/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://dubbo.apache.org/zh-cn/overview/mannual/golang-sdk/tutorial/observability/rpc_metrics/</guid><description>&lt;p&gt;Dubbo 支持采集运行态 Metrics 指标并接入 Prometheus、Grafana 系统，实现对微服务集群的可视化监控，以下是一个具体的使用示例，可查看 &lt;a href="https://github.com/apache/dubbo-go-samples/tree/main/metrics"&gt;示例完整源码&lt;/a&gt;。&lt;/p&gt;
+&lt;h2 id="contents"&gt;Contents&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;server/main.go - is the main definition of the service, handler and rpc server&lt;/li&gt;
+&lt;li&gt;client/main.go - is the rpc client&lt;/li&gt;
+&lt;li&gt;proto - contains the protobuf definition of the API&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="how-to-run"&gt;How to run&lt;/h2&gt;
+&lt;h3 id="run-server"&gt;Run server&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;go run ./go-server/cmd/main.go
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;test server work as expected:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;curl &lt;span style="color:#cb4b16"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#cb4b16"&gt;&lt;/span&gt; --header &lt;span style="color:#2aa198"&gt;&amp;#34;Content-Type: application/json&amp;#34;&lt;/span&gt; &lt;span style="color:#cb4b16"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#cb4b16"&gt;&lt;/span&gt; --data &lt;span style="color:#2aa198"&gt;&amp;#39;{&amp;#34;name&amp;#34;: &amp;#34;Dubbo&amp;#34;}&amp;#39;&lt;/span&gt; &lt;span style="color:#cb4b16"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#cb4b16"&gt;&lt;/span&gt; http://localhost:20000/greet.GreetService/Greet
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="run-client"&gt;Run client&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;go run ./go-client/cmd/main.go
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id="deploy-to-local"&gt;deploy to local&lt;/h2&gt;
+&lt;p&gt;install prometheus and open prometheus config file &lt;code&gt;prometheus.yml&lt;/code&gt;, write the config like this&lt;/p&gt;</description></item><item><title>链路追踪</title><link>https://dubbo.apache.org/zh-cn/overview/mannual/golang-sdk/tutorial/observability/tracing/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://dubbo.apache.org/zh-cn/overview/mannual/golang-sdk/tutorial/observability/tracing/</guid><description>&lt;p&gt;Dubbo-go 支持基于 &lt;a href="https://opentelemetry.io/"&gt;OpenTelemetry&lt;/a&gt; 标准的全链路追踪埋点，同时支持通过以下 exporter 导出到不同的 tracing 后端系统。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://opentelemetry.io/docs/specs/otel/logs/sdk_exporters/stdout/"&gt;Stdout exporter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://opentelemetry.io/docs/languages/js/exporters/#jaeger"&gt;Jaeger exporter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://opentelemetry.io/docs/languages/js/exporters/#zipkin"&gt;Zipkin exporter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://opentelemetry.io/docs/languages/js/exporters/#use-otlp-exporter-with-httpjson-or-httpprotobuf"&gt;OTLP-HTTP exporter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/"&gt;OTLP-gRPC exporter&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="使用方式"&gt;使用方式&lt;/h2&gt;
+&lt;p&gt;请注意，仅支持通过 &lt;code&gt;dubbo.NewInstance&lt;/code&gt; 方式创建 dubbo 应用时开启 tracing 功能，也就是我们快速开始中提到的&lt;code&gt;微服务应用模式&lt;/code&gt;，对于&lt;code&gt;轻量 RPC API&lt;/code&gt;暂时不支持开启 tracing。&lt;/p&gt;
+&lt;h2 id="示例详解"&gt;示例详解&lt;/h2&gt;
+&lt;p&gt;可在此查看完整示例&lt;a href="https://github.com/apache/dubbo-go-samples/tree/main/otel"&gt;源码&lt;/a&gt;地址。&lt;/p&gt;
+&lt;p&gt;使用 &lt;code&gt;dubbo.WithTracing()&lt;/code&gt; 开启 tracing，可以通过多个参数控制 tracing 行为：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-go" data-lang="go"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#719e07"&gt;package&lt;/span&gt; main
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#719e07"&gt;import&lt;/span&gt; (
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#2aa198"&gt;&amp;#34;dubbo.apache.org/dubbo-go/v3&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; _ &lt;span style="color:#2aa198"&gt;&amp;#34;dubbo.apache.org/dubbo-go/v3/imports&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#2aa198"&gt;&amp;#34;dubbo.apache.org/dubbo-go/v3/otel/trace&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#268bd2"&gt;func&lt;/span&gt; &lt;span style="color:#268bd2"&gt;main&lt;/span&gt;() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; instance, err &lt;span style="color:#719e07"&gt;:=&lt;/span&gt; dubbo.&lt;span style="color:#268bd2"&gt;NewInstance&lt;/span&gt;(
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; dubbo.&lt;span style="color:#268bd2"&gt;WithTracing&lt;/span&gt;(
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#586e75"&gt;// add tracing options here&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; trace.&lt;span style="color:#268bd2"&gt;WithEnabled&lt;/span&gt;(), &lt;span style="color:#586e75"&gt;// enable tracing feature&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; trace.&lt;span style="color:#268bd2"&gt;WithStdoutExporter&lt;/span&gt;(),
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; trace.&lt;span style="color:#268bd2"&gt;WithW3cPropagator&lt;/span&gt;(),
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; trace.&lt;span style="color:#268bd2"&gt;WithAlwaysMode&lt;/span&gt;(),
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; trace.&lt;span style="color:#268bd2"&gt;WithRatioMode&lt;/span&gt;(), &lt;span style="color:#586e75"&gt;// use ratio mode&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; trace.&lt;span style="color:#268bd2"&gt;WithRatio&lt;/span&gt;(&lt;span style="color:#2aa198"&gt;0.5&lt;/span&gt;), &lt;span style="color:#586e75"&gt;// sample ratio, only active when use ratio mode&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; ),
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; )
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;如果你在 &lt;code&gt;dubbo.WithTracing()&lt;/code&gt; 调用中不指定任何 option 参数，则会使用默认行为：&lt;/p&gt;</description></item></channel></rss>
